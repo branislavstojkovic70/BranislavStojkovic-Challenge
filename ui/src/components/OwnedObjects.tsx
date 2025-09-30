@@ -14,6 +14,7 @@ import {
   TextField,
   Badge,
   Tabs,
+  Separator,
 } from "@radix-ui/themes";
 import { useState } from "react";
 import { useNetworkVariable } from "../networkConfig";
@@ -21,6 +22,7 @@ import { Hero } from "../types/hero";
 import { transferHero } from "../utility/helpers/transfer_hero";
 import { listHero } from "../utility/marketplace/list_hero";
 import { createArena } from "../utility/arena/create_arena";
+import { changeHeroPower } from "../utility/admin/change_power";
 import { RefreshProps } from "../types/props";
 
 export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
@@ -31,6 +33,7 @@ export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
     [key: string]: string;
   }>({});
   const [listPrice, setListPrice] = useState<{ [key: string]: string }>({});
+  const [newPower, setNewPower] = useState<{ [key: string]: string }>({});
   const [isTransferring, setIsTransferring] = useState<{
     [key: string]: boolean;
   }>({});
@@ -38,11 +41,35 @@ export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
   const [isCreatingBattle, setIsCreatingBattle] = useState<{
     [key: string]: boolean;
   }>({});
+  const [isChangingPower, setIsChangingPower] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
     {},
   );
 
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
+
+  const { data: adminCap } = useSuiClientQuery(
+    "getOwnedObjects",
+    {
+      owner: account?.address as string,
+      filter: {
+        StructType: `${packageId}::marketplace::AdminCap`
+      },
+      options: {
+        showContent: true,
+        showType: true
+      }
+    },
+    {
+      enabled: !!account && !!packageId,
+      queryKey: ["getOwnedObjects", "AdminCap", account?.address, packageId, refreshKey],
+    }
+  );
+
+  const isAdmin = (adminCap?.data?.length ?? 0) > 0;
+  const adminCapId = adminCap?.data?.[0]?.data?.objectId;
 
   const { data, isPending, error } = useSuiClientQuery(
     "getOwnedObjects",
@@ -157,6 +184,35 @@ export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
     );
   };
 
+  const handleChangePower = (heroId: string, power: string) => {
+    if (!packageId || !power.trim()) return;
+
+    setIsChangingPower((prev) => ({ ...prev, [heroId]: true }));
+
+    const tx = changeHeroPower(packageId, heroId, power);
+    signAndExecute(
+      { transaction: tx },
+      {
+        onSuccess: async ({ digest }) => {
+          await suiClient.waitForTransaction({
+            digest,
+            options: {
+              showEffects: true,
+              showObjectChanges: true,
+            },
+          });
+
+          setNewPower((prev) => ({ ...prev, [heroId]: "" }));
+          setRefreshKey(refreshKey + 1);
+          setIsChangingPower((prev) => ({ ...prev, [heroId]: false }));
+        },
+        onError: () => {
+          setIsChangingPower((prev) => ({ ...prev, [heroId]: false }));
+        },
+      },
+    );
+  };
+
   if (!account) {
     return (
       <Card>
@@ -187,7 +243,14 @@ export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
 
   return (
     <Flex direction="column" gap="4">
-      <Heading size="6">Your Heroes ({heroes.length})</Heading>
+      <Flex justify="between" align="center">
+        <Heading size="6">Your Heroes ({heroes.length})</Heading>
+        {isAdmin && (
+          <Badge color="red" size="2">
+            Admin Panel Active
+          </Badge>
+        )}
+      </Flex>
 
       {heroes.length === 0 ? (
         <Card>
@@ -328,6 +391,58 @@ export function OwnedObjects({ refreshKey, setRefreshKey }: RefreshProps) {
                       </Flex>
                     </Tabs.Content>
                   </Tabs.Root>
+
+                  {/* Admin Controls */}
+                  {isAdmin && (
+                    <>
+                      <Separator size="4" />
+                      <Flex
+                        direction="column"
+                        gap="2"
+                        style={{
+                          backgroundColor: "var(--red-2)",
+                          padding: "12px",
+                          borderRadius: "8px",
+                          border: "1px solid var(--red-6)",
+                        }}
+                      >
+                        <Text size="3" weight="bold" color="red">
+                          Admin: Change Power
+                        </Text>
+                        <Text size="2" color="gray">
+                          Current power: {fields.power}
+                        </Text>
+                        <TextField.Root
+                          placeholder="Enter new power"
+                          type="number"
+                          size="2"
+                          value={newPower[heroId] || ""}
+                          onChange={(e) =>
+                            setNewPower((prev) => ({
+                              ...prev,
+                              [heroId]: e.target.value,
+                            }))
+                          }
+                        />
+                        <Button
+                          onClick={() =>
+                            handleChangePower(heroId, newPower[heroId])
+                          }
+                          disabled={
+                            !newPower[heroId]?.trim() ||
+                            isChangingPower[heroId]
+                          }
+                          loading={isChangingPower[heroId]}
+                          color="purple"
+                          size="2"
+                        >
+                          {isChangingPower[heroId]
+                            ? "Updating Power..."
+                            : "Update Power"}
+                        </Button>
+                      </Flex>
+                    </>
+                  )}
                 </Flex>
               </Card>
             );

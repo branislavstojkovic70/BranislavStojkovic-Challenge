@@ -55,3 +55,7 @@ public fun hero_id(hero: &Hero): ID {
     object::id(hero)
 }
 
+//============ SETTER FUNCTIONS =========
+public fun set_power(hero: &mut Hero, new_power: u64) {
+    hero.power = new_power;
+}

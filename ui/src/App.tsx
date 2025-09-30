@@ -10,6 +10,7 @@ import EventsHistory from "./components/EventsHistory";
 
 function App() {
   const [refreshKey, setRefreshKey] = useState(0);
+
   return (
     <>
       {/* Header */}
@@ -28,7 +29,6 @@ function App() {
         <Box>
           <Heading size="6">Hero NFT Marketplace</Heading>
         </Box>
-
         <Box>
           <ConnectButton />
         </Box>

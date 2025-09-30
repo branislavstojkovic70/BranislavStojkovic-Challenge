@@ -7,13 +7,10 @@ export const buyHero = (
 ) => {
   const tx = new Transaction();
 
-  // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
   const priceInMist = BigInt(parseFloat(priceInSui) * 1_000_000_000);
 
-  // Split coin for exact payment
   const [paymentCoin] = tx.splitCoins(tx.gas, [priceInMist]);
 
-  // Add moveCall to buy a hero
   tx.moveCall({
     target: `${packageId}::marketplace::buy_hero`,
     arguments: [

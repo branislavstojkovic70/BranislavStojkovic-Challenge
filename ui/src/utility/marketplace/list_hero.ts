@@ -7,10 +7,8 @@ export const listHero = (
 ) => {
   const tx = new Transaction();
   
-  // Convert SUI to MIST (1 SUI = 1,000,000,000 MIST)
   const priceInMist = (parseFloat(priceInSui) * 1_000_000_000).toString();
   
-  // Add moveCall to list a hero for sale
   tx.moveCall({
     target: `${packageId}::marketplace::list_hero`,
     arguments: [
