@@ -1,160 +1,153 @@
-# 🦸 Hero Battle Marketplace (Move + React)
+# Move Project Repo Template
 
-This project is a **full-stack decentralized application** built with **Move smart contracts** and a **React (Vite) frontend**.
-It allows users to **create heroes as NFTs**, **battle them in arenas**, and **trade them in a marketplace**.
-The project was designed as a **student challenge** to practice building smart contracts and connecting them to a frontend UI.
+This is a template for Workshop Students Project Submissions
 
----
+## ⚠️ Important Notes
+- **Do not rename** the `ui` and `move` folders
+- **Do not edit** the test files
+- All tests must pass for successful deployment
 
-## 📦 Repository Structure
+## Getting Started
 
-```
-.
-├── move/             # Move smart contracts (hero, arena, marketplace)
-├── ui/               # Frontend React application
-├── STUDENT_GUIDE.md  # Step-by-step TODOs for students
-└── README.md         # Project documentation
-```
+### 1. Repository Setup
+- Click `Use this template` and create a new repository
+- Name it: `<YOUR-NAME>-Challenge` (e.g., `AliErcanOzgokce-Challenge`)
+- Make sure the repository is **Public**
+- Clone the repository:
+  ```bash
+  git clone <YOUR-REPO-URL>
+  cd <YOUR-REPO-NAME>
+  ```
 
----
+### 2. Follow the Implementation Guide
+- Read and complete the [STUDENT_GUIDE.md](./STUDENT_GUIDE.md)
+- Implement all TODO items in both smart contracts and frontend
+- Ensure all tests pass
 
-## 🚀 Features
-
-* **Hero NFTs**
-
-  * Create heroes with name, image, and power level
-  * Transfer heroes between accounts
-
-* **Arena Battles**
-
-  * Create arenas with your hero
-  * Challenge others to battles
-  * Winner takes both heroes
-
-* **Marketplace**
-
-  * List heroes for sale with custom price
-  * Buy heroes using SUI
-  * Admin can delist or update prices
-
-* **Admin Tools**
-
-  * Transfer `AdminCap` to new admin
-  * Manage listed heroes (delist, change price)
-
----
-
-## ⚙️ Setup & Installation
-
-### 1. Clone Repository
-
+### 3. Build and Test
 ```bash
-git clone <YOUR-REPO-URL>
-cd <YOUR-REPO-NAME>
-```
-
-### 2. Install Dependencies
-
-```bash
-cd ui
-npm install
-```
-
-### 3. Build Smart Contracts
-
-```bash
+# Build smart contracts
 cd move
 sui move build
 sui move test
+
+# Build frontend
+cd ../ui
+npm install
+npm run build
 ```
 
-### 4. Run Frontend
+### 4. Configure Your GitHub Pages Settings ⚠️
+In your repository, go to Settings → Pages → Source, and change it from "Deploy from a branch" to "GitHub Actions"
 
+### 5. Deploy and Commit
 ```bash
-cd ui
-npm run dev
+git add .
+git commit -m "Complete all the TODOs"
+git push origin main
 ```
 
----
+## Live Deployment
 
-## 📜 Deployment Guide
+⚠️ **IMPORTANT:** You need to configure your GitHub Pages settings (step 4 above) in order to see your deployed app!
 
-### 1. Deploy Smart Contracts to Testnet
+Once you push your changes to the `main` branch:
 
-```bash
-cd move
-sui client publish
-```
+1. **GitHub Actions** will automatically:
+   - Build and test your smart contracts
+   - Build your frontend application
+   - Deploy to GitHub Pages
 
-* Copy the **Package ID** from the output
-* Paste it into `ui/src/networkConfig.ts` → `const PACKAGE_ID = "<your-package-id>"`
-
-### 2. Deploy Frontend to GitHub Pages
-
-1. Go to repo → **Settings → Pages → Source → GitHub Actions**
-2. Push your changes:
-
-   ```bash
-   git add .
-   git commit -m "Complete all TODOs"
-   git push origin main
-   ```
-3. Check the **Actions tab** → deployment logs
-4. Your app will be live at:
-
+2. **Your app will be live at:**
    ```
    https://<YOUR-USERNAME>.github.io/<YOUR-REPO-NAME>/
    ```
 
----
+3. **Monitor deployment:**
+   - Go to your repository's `Actions` tab
+   - Watch the build and deployment progress
+   - Check the `deploy` job for the live URL
 
-## 🔑 Admin Setup
 
-* Only the **address that deployed the package** has `AdminCap`.
-* Without it, **Admin Panel** won’t be visible.
+## 🔧 Development
 
-To import admin wallet:
+### Local Development
+```bash
+# Start frontend development server
+cd ui
+npm install
+npm run dev
+```
+
+### Smart Contract Development
+```bash
+# Build contracts
+cd move
+sui move build
+
+# Run tests
+sui move test
+
+# Deploy to testnet
+sui client publish
+```
+
+## "Admin Panel" Is Not Visible Issue
+
+If you're unable to see the admin panels in your deployed application, it means your wallet address doesn't have the AdminCap. To resolve this issue, you need to use the address that published the package.
+
+### Step 1: Get Your Wallet Address
+
+First, check your available wallet addresses:
 
 ```bash
 sui client addresses
+```
+
+This will display all your wallet addresses. Look for the one marked with `*` (active address) that was probably used for deploying your package.
+
+### Step 2: Export Your Private Key
+
+To use your wallet for admin operations, you'll need to export your private key:
+
+```bash
 sui keytool export --key-identity <YOUR-ALIAS>
 ```
 
-* Import the private key into your wallet
-* Reconnect wallet in the app
-* Admin panel should appear
+Replace `<YOUR-ALIAS>` with the alias of your wallet (e.g., `condescending-cymophane`).
 
-⚠️ **Never share your private key**
-⚠️ Use **testnet only** for development
+**Example output:**
+```
+╭────────────────────┬────────────────────────────────────────────────────────────────────────────────────────────╮
+│ exportedPrivateKey │  suiprivkey1qr9xs5z77q6v8f5cumgcas0y3qavqch2x0lqvdnduqy49x0yun2k703zqwv                    │
+│ key                │ ╭─────────────────┬──────────────────────────────────────────────────────────────────────╮ │
+│                    │ │ alias           │  condescending-cymophane                                             │ │
+│                    │ │ suiAddress      │  0xa11070a3877b77355a0afbc402559cae7501c666819f05491f0337016c219366  │ │
+│                    │ │ publicBase64Key │  ADHRP+/iykiPas83db9JY2DcfNJbhrpdIKjGGzQIO39L                        │ │
+│                    │ │ keyScheme       │  ed25519                                                             │ │
+│                    │ │ flag            │  0                                                                   │ │
+│                    │ │ peerId          │  31d13fefe2ca488f6acf3775bf496360dc7cd25b86ba5d20a8c61b34083b7f4b    │ │
+│                    │ ╰─────────────────┴──────────────────────────────────────────────────────────────────────╯ │
+╰────────────────────┴────────────────────────────────────────────────────────────────────────────────────────────╯
+```
 
----
+### Step 3: Connect Your Wallet
 
-## 🧑‍💻 Development Workflow
+In your deployed application:
+1. Click the "Connect Wallet" button
+2. Import your wallet using the private key you exported
+3. The admin panels should now be visible
 
-### Smart Contracts
+### Important Security Notes
 
-* `move/sources/hero.move` → Create & transfer heroes
-* `move/sources/arena.move` → Arena creation & battles
-* `move/sources/marketplace.move` → Marketplace listing, buying, admin actions
+⚠️ **Never share your private key with anyone**
+⚠️ **Use testnet addresses for development and testing**
 
-### Frontend Utilities (TypeScript)
+## 🎯 Success Criteria
 
-* `create_hero.ts` → Create hero
-* `battle.ts` → Start battle
-* `list_hero.ts` → List hero for sale
-* `buy_hero.ts` → Buy hero from marketplace
-* `admin/*` → Admin actions (delist, change price, transfer cap)
-
----
-
-## ✅ Success Criteria
-
-* All smart contract tests pass
-* All TODOs in contracts & frontend implemented
-* Frontend builds without errors
-* App deployed to GitHub Pages
-* Admin panel accessible with correct wallet
-* Heroes can be created, traded, and battled successfully
-
----
-
+Your project is complete when:
+- ✅ All smart contract tests pass
+- ✅ All TODO items are implemented
+- ✅ Frontend builds without errors
+- ✅ App is successfully deployed to GitHub Pages
+- ✅ All features work as expected
